@@ -1,4 +1,4 @@
-#!/usr/bin/env python 
+#!/usr/bin/env python
 import re
 import subprocess
 import psutil
@@ -73,37 +73,47 @@ def get_rosmaster_pid():
     return int(stdout[0])
 
 
+def generate_ros_table():
+    table = []
+    processes = [['/rosmaster', [get_rosmaster_pid()]]]
+    processes.extend([[node, get_node_pid(node)] for node in get_nodes()])
+    for name, pid in processes:
+        performances = get_process_performance(pid[0])
+        connections = get_ports_by_pid(pid[0])
+        connections = [connection[1]
+                       for connection in connections if connection[0] == 'UDP']
+        connections = " ".join(connections)
+        table.append([
+            name,
+            pid[0],
+            str(performances[0]) + "%",
+            str(performances[1]) + "%",
+            connections,
+        ])
+    return table
+
+
 def main():
     from tabulate import tabulate
     import os
 
-    while True:        
-        table = []
-        processes = [['/rosmaster', [get_rosmaster_pid()]]]
-        processes.extend([[node, get_node_pid(node)] for node in get_nodes()])
-        for name, pid in processes:
-            performances = get_process_performance(pid[0])
-            connections = get_ports_by_pid(pid[0])
-            connections = [connection[1]
-                        for connection in connections if connection[0] == 'UDP']
-            connections = " ".join(connections)
-            table.append([
-                name,
-                pid[0],
-                str(performances[0]) + "%",
-                str(performances[1]) + "%",
-                connections,
-            ])
-
-        os.system('clear')
-        table.sort(key=lambda x: x[2], reverse=True)
-        print tabulate(table, headers=(
-            'name',
-            'pid',
-            'cpu',
-            'mem',
-            'UDP connections',
-        ))
+    while True:
+        try:
+            table = generate_ros_table()
+            os.system('clear')
+            table.sort(key=lambda x: x[2], reverse=True)
+            print tabulate(table, headers=(
+                'name',
+                'pid',
+                'cpu',
+                'mem',
+                'UDP connections',
+            ))
+            names = [row[0] for row in table]
+            print '-' * len(max(names, key=lambda x: len(x)))
+            print 'press ctrl+c to exit'
+        except KeyboardInterrupt:
+            break
 
 
 if __name__ == "__main__":
