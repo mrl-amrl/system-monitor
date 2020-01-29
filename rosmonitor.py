@@ -114,7 +114,15 @@ def main():
             print 'press ctrl+c to exit'
         except KeyboardInterrupt:
             break
+        except ValueError as e:
+            print '[ERR] ' + e
+            continue
 
 
 if __name__ == "__main__":
+    try:
+        get_rosmaster_pid()
+    except ValueError:
+        print '[ERR] Cannot detect rosmaster in your ROS system.'
+        exit(1)
     main()
