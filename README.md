@@ -1,9 +1,18 @@
-### AMRL System Monitor
+## AMRL System Monitor
+
+### Installation
+
+```bash
+$ wget -q -O - https://mrl-amrl.ir/rosmonitor.sh | bash
+```
+
+### Usage
 
 To monitor ROS nodes use:
 
 ```
 $ python rosmonitor.py
+$ # or if you installed rosmonitor in your system just run rosmonitor.
 ```
 
 ```
