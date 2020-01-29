@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 echo 'Checking dependencies ...'
 for i in 'lsof' 'wget'; do
     if ! [ -x "$(command -v $i)" ]; then
@@ -11,6 +13,11 @@ done
 python2 -c "import tabulate" &> /dev/null
 if ! [ $? -eq 0 ]; then
     echo "Error: 'tabulate' not found in your python packages." >&2
+    
+    if ! [ -x "$(command -v pip)" ]; then
+        echo "Error: pip is not installed." >&2
+        sudo apt install -yq python-pip
+    fi
     sudo pip install tabulate
 fi
 
