@@ -1,17 +1,17 @@
 #!/bin/bash
 
 echo 'Checking dependencies ...'
-for i in 'pgrep' 'lsof' 'wget'; do
+for i in 'lsof' 'wget'; do
     if ! [ -x "$(command -v $i)" ]; then
         echo "Error: $i is not installed." >&2
-        exit 1
+        sudo apt install -yq $i
     fi
 done
 
 python2 -c "import tabulate" &> /dev/null
 if ! [ $? -eq 0 ]; then
     echo "Error: 'tabulate' not found in your python packages." >&2
-    exit 2
+    sudo pip install tabulate
 fi
 
 echo 'Installing ...'
