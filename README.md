@@ -6,6 +6,12 @@
 $ wget -q -O - https://mrl-amrl.ir/rosmonitor.sh | bash
 ```
 
+or 
+
+```bash
+$ wget -q -O - https://raw.githubusercontent.com/mrl-amrl/system-monitor/master/install.sh | bash
+```
+
 ### Usage
 
 To monitor ROS nodes use:
