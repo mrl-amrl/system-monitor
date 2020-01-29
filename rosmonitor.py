@@ -98,7 +98,7 @@ def main():
         'pid',
         'cpu',
         'mem',
-        'connections',
+        'UDP connections',
     ))
 
 
