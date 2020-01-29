@@ -46,26 +46,19 @@ def bytes2human(n):
     return "%sB" % n
 
 
-def get_process_netstat(pid):
-    stdout = run_command(['cat', "/proc/"+str(pid)+"/net/dev"])[:-1]
-    lines = stdout.split('\n')
-    interfaces = {}
-    for line in lines[2:]:
-        index = line.find(':')
-        name = line[:index].strip()
-        items = [int(item)
-                 for item in line[index+1:].split(' ') if item.isdigit()]
-        interfaces[name] = {
-            'receive': {
-                'bytes': items[0],
-                'packets': items[1],
-            },
-            'transmit': {
-                'bytes': items[8],
-                'packets': items[9],
-            }
-        }
-    return interfaces
+def get_ports_by_pid(pid):
+    stdout = run_command(
+        ['lsof', '-Pa', '-p', str(pid), '-i'])[:-1].split('\n')
+
+    connections = []
+    for line in stdout[1:]:
+        parts = line.split(' ')
+        parts = [part for part in parts if len(part) > 1]
+        parts = parts[7:]
+        proto = parts[0]
+        connection = parts[1]
+        connections.append([proto, connection])
+    return connections
 
 
 def get_process_file(pid):
@@ -79,35 +72,35 @@ def get_rosmaster_pid():
     return int(stdout[0])
 
 
-if __name__ == "__main__":
+def main():
     from tabulate import tabulate
-    ifname = 'enp3s0'
 
     table = []
     processes = [['/rosmaster', [get_rosmaster_pid()]]]
     processes.extend([[node, get_node_pid(node)] for node in get_nodes()])
     for name, pid in processes:
         performances = get_process_performance(pid[0])
+        connections = get_ports_by_pid(pid[0])
+        connections = [connection[1]
+                       for connection in connections if connection[0] == 'UDP']
+        connections = " ".join(connections)
         table.append([
             name,
             pid[0],
             str(performances[0]) + "%",
             str(performances[1]) + "%",
-            get_process_netstat(pid[0])['lo']['transmit']['bytes'],
-            get_process_netstat(pid[0])['lo']['receive']['bytes'],
-            get_process_netstat(pid[0])[ifname]['transmit']['bytes'],
-            get_process_netstat(pid[0])[ifname]['receive']['bytes'],
-            # get_process_file(pid[0])
+            connections,
         ])
 
+    table.sort(key=lambda x: x[2], reverse=True)
     print tabulate(table, headers=(
         'name',
         'pid',
         'cpu',
         'mem',
-        'lo_tx_bytes',
-        'lo_rx_bytes',
-        ifname + '_tx_bytes',
-        ifname + '_rx_bytes',
-        # 'command'
+        'connections',
     ))
+
+
+if __name__ == "__main__":
+    main()
