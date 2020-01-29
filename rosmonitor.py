@@ -74,32 +74,35 @@ def get_rosmaster_pid():
 
 def main():
     from tabulate import tabulate
+    import os
 
-    table = []
-    processes = [['/rosmaster', [get_rosmaster_pid()]]]
-    processes.extend([[node, get_node_pid(node)] for node in get_nodes()])
-    for name, pid in processes:
-        performances = get_process_performance(pid[0])
-        connections = get_ports_by_pid(pid[0])
-        connections = [connection[1]
-                       for connection in connections if connection[0] == 'UDP']
-        connections = " ".join(connections)
-        table.append([
-            name,
-            pid[0],
-            str(performances[0]) + "%",
-            str(performances[1]) + "%",
-            connections,
-        ])
+    while True:        
+        table = []
+        processes = [['/rosmaster', [get_rosmaster_pid()]]]
+        processes.extend([[node, get_node_pid(node)] for node in get_nodes()])
+        for name, pid in processes:
+            performances = get_process_performance(pid[0])
+            connections = get_ports_by_pid(pid[0])
+            connections = [connection[1]
+                        for connection in connections if connection[0] == 'UDP']
+            connections = " ".join(connections)
+            table.append([
+                name,
+                pid[0],
+                str(performances[0]) + "%",
+                str(performances[1]) + "%",
+                connections,
+            ])
 
-    table.sort(key=lambda x: x[2], reverse=True)
-    print tabulate(table, headers=(
-        'name',
-        'pid',
-        'cpu',
-        'mem',
-        'UDP connections',
-    ))
+        os.system('clear')
+        table.sort(key=lambda x: x[2], reverse=True)
+        print tabulate(table, headers=(
+            'name',
+            'pid',
+            'cpu',
+            'mem',
+            'UDP connections',
+        ))
 
 
 if __name__ == "__main__":
