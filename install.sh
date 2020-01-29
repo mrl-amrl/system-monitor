@@ -16,6 +16,7 @@ fi
 
 echo 'Installing ...'
 wget "https://raw.githubusercontent.com/mrl-amrl/system-monitor/master/rosmonitor.py" -q -O /tmp/amrl_rosmonitor
-sudo cp /tmp/amrl_rosmonitor /usr/bin/rosmonitor
+sudo rm -rf /usr/bin/rosmonitor
+sudo mv /tmp/amrl_rosmonitor /usr/bin/rosmonitor
 sudo chmod +x /usr/bin/rosmonitor
 echo 'The rosmonitor is now installed in your system.'
