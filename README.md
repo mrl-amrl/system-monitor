@@ -1,5 +1,12 @@
 ## AMRL System Monitor
 
+### Introduction
+
+System monitoring tools for ROS.
+This project provides system monitoring tools for ROS. Every node in ROS has a process ID and some more details. With this information, we can fetch CPU/MEM usage and TCP/UDP connections for each node.
+
+**Note** this repository is not a ROS package right now, maybe later it will be.
+
 ### Installation
 
 ```bash
