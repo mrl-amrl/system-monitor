@@ -77,12 +77,18 @@ def generate_ros_table():
     table = []
     processes = [['/rosmaster', [get_rosmaster_pid()]]]
     processes.extend([[node, get_node_pid(node)] for node in get_nodes()])
+    sum_cpu = 0
+    sum_mem = 0
+    max_pid_len = 0
+    max_name_len = 0
     for name, pid in processes:
         performances = get_process_performance(pid[0])
         connections = get_ports_by_pid(pid[0])
         connections = [connection[1]
                        for connection in connections if connection[0] == 'UDP']
         connections = " ".join(connections)
+        max_pid_len = max(max_pid_len, len(str(pid[0])))
+        max_name_len = max(max_name_len, len(name))
         table.append([
             name,
             pid[0],
@@ -90,6 +96,15 @@ def generate_ros_table():
             str(performances[1]) + "%",
             connections,
         ])
+        sum_cpu += performances[0]
+        sum_mem += performances[1]
+    table.append([
+        "-" * max_name_len,
+        "-" * max_pid_len,
+        str(sum_cpu) + "%",
+        str(sum_mem) + "%",
+        "",
+    ])
     return table
 
 
@@ -101,7 +116,9 @@ def main():
         try:
             table = generate_ros_table()
             os.system('clear')
-            table.sort(key=lambda x: x[2], reverse=True)
+            table_items = table[:-1]
+            table_items.sort(key=lambda x: x[2], reverse=True)
+            table[:-1] = table_items
             print tabulate(table, headers=(
                 'name',
                 'pid',
@@ -109,8 +126,6 @@ def main():
                 'mem',
                 'UDP connections',
             ))
-            names = [row[0] for row in table]
-            print '-' * len(max(names, key=lambda x: len(x)))
             print 'press ctrl+c to exit'
         except KeyboardInterrupt:
             break
