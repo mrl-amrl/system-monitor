@@ -19,6 +19,8 @@ or
 $ wget -q -O - https://raw.githubusercontent.com/mrl-amrl/system-monitor/master/install.sh | bash
 ```
 
+If you install it on your system, you can run `rosmonitor` in your terminal.
+
 ### Usage
 
 To monitor ROS nodes use:
